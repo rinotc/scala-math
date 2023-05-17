@@ -5,7 +5,6 @@ import com.github.rinotc.scalastats.common.Percent
 import com.github.rinotc.scalastats.freq.DefaultClass
 import com.github.rinotc.scalastats.freq.DefaultClass.*
 import com.github.rinotc.scalastats.freq.Frequency.*
-import org.scalatest.funspec.AnyFunSpec
 
 class FrequencyDistributionTest extends BaseFunSpec {
 
@@ -94,5 +93,21 @@ class FrequencyDistributionTest extends BaseFunSpec {
       fd.getCumulativeRelativeFrequency(eighty2ninety).value shouldBe 0.949 +- 0.001
       fd.getCumulativeRelativeFrequency(ninety2hundred).value shouldBe 1.0
     }
+
+    it("mean - 平均") {
+      val map = Map(
+        DiscValue(1) -> Frequency(12),
+        DiscValue(2) -> Frequency(15),
+        DiscValue(3) -> Frequency(25),
+        DiscValue(4) -> Frequency(19),
+        DiscValue(5) -> Frequency(8)
+      )
+      val discDist: FrequencyDistribution[DiscValue] = FrequencyDistribution.of(map)
+      discDist.mean shouldBe 3.0
+    }
   }
+}
+
+case class DiscValue(value: Long) extends Discrete with Ordered[DiscValue] {
+  def compare(that: DiscValue): Int = value.compare(that.value)
 }

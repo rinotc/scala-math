@@ -7,7 +7,7 @@ package com.github.rinotc.scalastats.freq
  * @param classValue
  *   階級値
  */
-final case class DefaultClass(className: String, classValue: Int) extends Ordered[DefaultClass] {
+final case class DefaultClass(className: String, classValue: Int) extends Ordered[DefaultClass] with Continuous {
   def compare(that: DefaultClass): Int = classValue.compare(that.classValue)
 }
 

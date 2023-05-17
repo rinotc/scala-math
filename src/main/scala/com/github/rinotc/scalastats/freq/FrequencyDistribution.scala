@@ -4,16 +4,38 @@ import com.github.rinotc.scalastats.common.Percent
 
 import scala.collection.immutable.{SortedMap, TreeMap}
 
+sealed trait DistributionType
+
+/**
+ * 離散的
+ */
+trait Discrete extends DistributionType {
+  def value: Long
+}
+
+/**
+ * 連続的
+ */
+trait Continuous extends DistributionType
+
 /**
  * 度数分布
  */
-final class FrequencyDistribution[K](
+class FrequencyDistribution[K <: DistributionType](
     private val freqTable: SortedMap[K, Frequency]
 )(using o: Ordering[K]) {
 
+  def mean(using K <:< Discrete): Double = {
+    var molecule = 0L
+    freqTable.foreach { case (k, f) =>
+      molecule = k.value * f.value
+    }
+    molecule.toDouble / sumOfFrequencies.value.toDouble
+  }
+
   /**
    * @return
-   *   頻度の合計を返す
+   *   度数の合計を返す
    */
   def sumOfFrequencies: Frequency = Frequency(freqTable.values.map(_.value).sum)
 
@@ -56,6 +78,12 @@ final class FrequencyDistribution[K](
     Frequency(freq)
   }
 
+  /**
+   * @param classValue
+   *   階級値
+   * @return
+   *   累積相対度数
+   */
   def getCumulativeRelativeFrequency(classValue: K): Percent = {
     checkContainsClassValue(classValue)
     val freq = getCumulativeFrequency(classValue)
@@ -68,6 +96,6 @@ final class FrequencyDistribution[K](
 
 object FrequencyDistribution {
 
-  def of[K: Ordering](map: Map[K, Frequency]) =
+  def of[K <: DistributionType: Ordering](map: Map[K, Frequency]) =
     new FrequencyDistribution(freqTable = TreeMap.from(map))
 }
