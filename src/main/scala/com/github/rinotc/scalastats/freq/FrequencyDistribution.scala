@@ -39,9 +39,10 @@ final class FrequencyDistribution[K](
    * @return
    *   相対度数（データ全体の大きさを1としたときの、各階級に属する観測値の個数の全体の中での割合）を返す
    */
-  def getRelativeFrequency(classValue: K): Percent =
+  def getRelativeFrequency(classValue: K): Percent = {
     checkContainsClassValue(classValue)
-    Percent(getFrequency(classValue) / sumOfFrequencies)
+    getFrequency(classValue) / sumOfFrequencies
+  }
 
   /**
    * @param classValue
@@ -51,8 +52,14 @@ final class FrequencyDistribution[K](
    */
   def getCumulativeFrequency(classValue: K): Frequency = {
     checkContainsClassValue(classValue)
-    val freq = freqTable.filter((cv, _) => o.gteq(cv, classValue)).values.map(_.value).sum
+    val freq = freqTable.filter((cv, _) => o.lteq(cv, classValue)).values.map(_.value).sum
     Frequency(freq)
+  }
+
+  def getCumulativeRelativeFrequency(classValue: K): Percent = {
+    checkContainsClassValue(classValue)
+    val freq = getCumulativeFrequency(classValue)
+    freq / sumOfFrequencies
   }
 
   private def checkContainsClassValue(classValue: K): Unit =
@@ -61,5 +68,6 @@ final class FrequencyDistribution[K](
 
 object FrequencyDistribution {
 
-  def of[K](map: Map[K, Frequency])(using Ordering[K]) = new FrequencyDistribution(freqTable = TreeMap.from(map))
+  def of[K: Ordering](map: Map[K, Frequency]) =
+    new FrequencyDistribution(freqTable = TreeMap.from(map))
 }

@@ -1,5 +1,7 @@
 package com.github.rinotc.scalastats.freq
 
+import com.github.rinotc.scalastats.common.Percent
+
 import scala.annotation.targetName
 
 /**
@@ -9,6 +11,10 @@ final case class Frequency(value: Long) {
   assert(value >= 0L)
 
   @targetName("divide")
-  def /(other: Frequency): Double =
-    value.toDouble / other.value.toDouble
+  def /(other: Frequency): Percent =
+    Percent(value.toDouble / other.value.toDouble)
+
+  @targetName("plus")
+  def +(other: Frequency): Frequency =
+    Frequency(this.value + other.value)
 }

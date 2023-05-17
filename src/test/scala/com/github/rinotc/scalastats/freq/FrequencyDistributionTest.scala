@@ -1,6 +1,7 @@
 package com.github.rinotc.scalastats.freq
 
 import com.github.rinotc.scalastats.BaseFunSpec
+import com.github.rinotc.scalastats.common.Percent
 import com.github.rinotc.scalastats.freq.DefaultClass
 import com.github.rinotc.scalastats.freq.DefaultClass.*
 import com.github.rinotc.scalastats.freq.Frequency.*
@@ -47,14 +48,51 @@ class FrequencyDistributionTest extends BaseFunSpec {
       assert(fd.getFrequency(ninety2hundred) == Frequency(19))
     }
 
-    it("should getClassValueCount") {}
+    it("getClassValueCount - 階級値の数を返す") {
+      assert(fd.getClassValueCount == 10)
+    }
 
-    it("should getCumulativeFrequency") {}
+    it("getRelativeFrequency - 相対度数を取得する") {
+      fd.getRelativeFrequency(zero2ten).value shouldBe 0.032 +- 0.001
+      fd.getRelativeFrequency(ten2twenty).value shouldBe 0.027 +- 0.001
+      fd.getRelativeFrequency(twenty2thirty).value shouldBe 0.051 +- 0.001
+      fd.getRelativeFrequency(thirty2forty).value shouldBe 0.113 +- 0.001
+      fd.getRelativeFrequency(forty2fifty).value shouldBe 0.193 +- 0.001
+      fd.getRelativeFrequency(fifty2sixty).value shouldBe 0.220 +- 0.001
+      fd.getRelativeFrequency(sixty2seventy).value shouldBe 0.145 +- 0.001
+      fd.getRelativeFrequency(seventy2eighty).value shouldBe 0.102 +- 0.001
+      fd.getRelativeFrequency(eighty2ninety).value shouldBe 0.067 +- 0.001
+      fd.getRelativeFrequency(ninety2hundred).value shouldBe 0.051 +- 0.001
+    }
 
-    it("should sumOfFrequencies") {}
+    it("sumOfFrequencies - 度数の合計を返す") {
+      assert(fd.sumOfFrequencies.value == 373)
+    }
 
-    it("should getRelativeFrequency") {}
+    it("getCumulativeFrequency - 累積度数を返す") {
+      fd.getCumulativeFrequency(zero2ten).value shouldBe 12L
+      fd.getCumulativeFrequency(ten2twenty).value shouldBe 22L
+      fd.getCumulativeFrequency(twenty2thirty).value shouldBe 41L
+      fd.getCumulativeFrequency(thirty2forty).value shouldBe 83L
+      fd.getCumulativeFrequency(forty2fifty).value shouldBe 155L
+      fd.getCumulativeFrequency(fifty2sixty).value shouldBe 237L
+      fd.getCumulativeFrequency(sixty2seventy).value shouldBe 291L
+      fd.getCumulativeFrequency(seventy2eighty).value shouldBe 329L
+      fd.getCumulativeFrequency(eighty2ninety).value shouldBe 354L
+      fd.getCumulativeFrequency(ninety2hundred).value shouldBe 373L
+    }
 
-    it("should of") {}
+    it("getCumulativeRelativeFrequency - 累積相対度数を返す") {
+      fd.getCumulativeRelativeFrequency(zero2ten).value shouldBe 0.032 +- 0.001
+      fd.getCumulativeRelativeFrequency(ten2twenty).value shouldBe 0.059 +- 0.001
+      fd.getCumulativeRelativeFrequency(twenty2thirty).value shouldBe 0.110 +- 0.001
+      fd.getCumulativeRelativeFrequency(thirty2forty).value shouldBe 0.223 +- 0.001
+      fd.getCumulativeRelativeFrequency(forty2fifty).value shouldBe 0.416 +- 0.001
+      fd.getCumulativeRelativeFrequency(fifty2sixty).value shouldBe 0.635 +- 0.001
+      fd.getCumulativeRelativeFrequency(sixty2seventy).value shouldBe 0.780 +- 0.001
+      fd.getCumulativeRelativeFrequency(seventy2eighty).value shouldBe 0.882 +- 0.001
+      fd.getCumulativeRelativeFrequency(eighty2ninety).value shouldBe 0.949 +- 0.001
+      fd.getCumulativeRelativeFrequency(ninety2hundred).value shouldBe 1.0
+    }
   }
 }
