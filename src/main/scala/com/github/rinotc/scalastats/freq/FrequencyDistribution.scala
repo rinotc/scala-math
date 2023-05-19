@@ -1,36 +1,35 @@
 package com.github.rinotc.scalastats.freq
 
 import com.github.rinotc.scalastats.common.Percent
+import org.apache.commons.math3.stat.StatUtils
 
 import scala.collection.immutable.{SortedMap, TreeMap}
-
-sealed trait DistributionType
-
-/**
- * 離散的
- */
-trait Discrete extends DistributionType {
-  def value: Long
-}
-
-/**
- * 連続的
- */
-trait Continuous extends DistributionType
 
 /**
  * 度数分布
  */
-class FrequencyDistribution[K <: DistributionType](
-    private val freqTable: SortedMap[K, Frequency]
-)(using o: Ordering[K]) {
+class FrequencyDistribution[CV <: ClassValue](
+    private val freqTable: SortedMap[CV, Frequency]
+)(using o: Ordering[CV]) {
 
-  def mean(using K <:< Discrete): Double = {
-    var molecule = 0L
-    freqTable.foreach { case (k, f) =>
-      molecule = k.value * f.value
+  /**
+   * @return
+   *   平均値
+   */
+  def mean: Double = sumValue.toDouble / sumOfFrequencies.value.toDouble
+
+  /**
+   * @note
+   *   いい命名が思いつかない
+   * @return
+   *   階級値と度数の積の和
+   */
+  def sumValue: Long = {
+    var v = 0L
+    freqTable.foreach { case (cv, f) =>
+      v += cv.value * f.value
     }
-    molecule.toDouble / sumOfFrequencies.value.toDouble
+    v
   }
 
   /**
@@ -45,7 +44,7 @@ class FrequencyDistribution[K <: DistributionType](
    * @return
    *   該当の階級値が存在すればその度数を返す
    */
-  def getFrequency(classValue: K): Frequency =
+  def getFrequency(classValue: CV): Frequency =
     checkContainsClassValue(classValue)
     freqTable(classValue)
 
@@ -61,7 +60,7 @@ class FrequencyDistribution[K <: DistributionType](
    * @return
    *   相対度数（データ全体の大きさを1としたときの、各階級に属する観測値の個数の全体の中での割合）を返す
    */
-  def getRelativeFrequency(classValue: K): Percent = {
+  def getRelativeFrequency(classValue: CV): Percent = {
     checkContainsClassValue(classValue)
     getFrequency(classValue) / sumOfFrequencies
   }
@@ -72,7 +71,7 @@ class FrequencyDistribution[K <: DistributionType](
    * @return
    *   累積度数
    */
-  def getCumulativeFrequency(classValue: K): Frequency = {
+  def getCumulativeFrequency(classValue: CV): Frequency = {
     checkContainsClassValue(classValue)
     val freq = freqTable.filter((cv, _) => o.lteq(cv, classValue)).values.map(_.value).sum
     Frequency(freq)
@@ -84,18 +83,18 @@ class FrequencyDistribution[K <: DistributionType](
    * @return
    *   累積相対度数
    */
-  def getCumulativeRelativeFrequency(classValue: K): Percent = {
+  def getCumulativeRelativeFrequency(classValue: CV): Percent = {
     checkContainsClassValue(classValue)
     val freq = getCumulativeFrequency(classValue)
     freq / sumOfFrequencies
   }
 
-  private def checkContainsClassValue(classValue: K): Unit =
+  private def checkContainsClassValue(classValue: CV): Unit =
     if !freqTable.contains(classValue) then throw new NoSuchElementException(s"argument $classValue is not contain.")
 }
 
 object FrequencyDistribution {
 
-  def of[K <: DistributionType: Ordering](map: Map[K, Frequency]) =
+  def of[CV <: ClassValue](map: Map[CV, Frequency])(using Ordering[CV]) =
     new FrequencyDistribution(freqTable = TreeMap.from(map))
 }
