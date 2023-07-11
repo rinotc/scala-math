@@ -1,4 +1,4 @@
-package com.github.rinotc.scalastats.freq
+package com.github.rinotc.scalastats.frequency
 
 import com.github.rinotc.scalastats.common.Percent
 import org.apache.commons.math3.stat.StatUtils
