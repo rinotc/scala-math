@@ -1,7 +1,7 @@
 package com.github.rinotc.scalastats.frequency
 
 import com.github.rinotc.scalastats.BaseFunSpec
-import com.github.rinotc.scalastats.common.Percent
+import com.github.rinotc.scalastats.common.Probability
 import com.github.rinotc.scalastats.frequency.Frequency.*
 
 class FrequencyDistributionTest extends BaseFunSpec {

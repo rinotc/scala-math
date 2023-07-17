@@ -1,6 +1,6 @@
 package com.github.rinotc.scalastats.frequency
 
-import com.github.rinotc.scalastats.common.Percent
+import com.github.rinotc.scalastats.common.Probability
 import org.apache.commons.math3.stat.StatUtils
 
 import scala.collection.immutable.{SortedMap, TreeMap}
@@ -60,7 +60,7 @@ class FrequencyDistribution[CV <: ClassValue](
    * @return
    *   相対度数（データ全体の大きさを1としたときの、各階級に属する観測値の個数の全体の中での割合）を返す
    */
-  def getRelativeFrequency(classValue: CV): Percent = {
+  def getRelativeFrequency(classValue: CV): Probability = {
     checkContainsClassValue(classValue)
     getFrequency(classValue) / sumOfFrequencies
   }
@@ -83,7 +83,7 @@ class FrequencyDistribution[CV <: ClassValue](
    * @return
    *   累積相対度数
    */
-  def getCumulativeRelativeFrequency(classValue: CV): Percent = {
+  def getCumulativeRelativeFrequency(classValue: CV): Probability = {
     checkContainsClassValue(classValue)
     val freq = getCumulativeFrequency(classValue)
     freq / sumOfFrequencies
