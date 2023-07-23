@@ -1,4 +1,4 @@
-package com.github.rinotc.scalastats.common
+package com.github.rinotc.scalamath.common
 
 
 /**

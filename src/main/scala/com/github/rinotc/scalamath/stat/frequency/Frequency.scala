@@ -1,6 +1,6 @@
-package com.github.rinotc.scalastats.frequency
+package com.github.rinotc.scalamath.stat.frequency
 
-import com.github.rinotc.scalastats.common.Probability
+import com.github.rinotc.scalamath.common.Probability
 
 import scala.annotation.targetName
 

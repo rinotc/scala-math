@@ -1,4 +1,4 @@
-package com.github.rinotc.scalastats.analysis.sovers
+package com.github.rinotc.scalamath.analysis.sovers
 
 /**
  * 一変量実数のルート探索アルゴリズムのインターフェース。

@@ -1,4 +1,4 @@
-package com.github.rinotc.scalastats
+package com.github.rinotc.scalamath
 
 import org.scalatest.diagrams.Diagrams
 import org.scalatest.funspec.AnyFunSpec

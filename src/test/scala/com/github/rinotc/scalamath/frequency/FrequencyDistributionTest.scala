@@ -1,22 +1,23 @@
-package com.github.rinotc.scalastats.frequency
+package com.github.rinotc.scalamath.frequency
 
-import com.github.rinotc.scalastats.BaseFunSpec
-import com.github.rinotc.scalastats.common.Probability
-import com.github.rinotc.scalastats.frequency.Frequency.*
+import com.github.rinotc.scalamath.BaseFunSpec
+import com.github.rinotc.scalamath.common.Probability
+import com.github.rinotc.scalamath.stat.frequency
+import com.github.rinotc.scalamath.stat.frequency.{Frequency, FrequencyDistribution}
 
 class FrequencyDistributionTest extends BaseFunSpec {
 
-  private val zero2ten       = ClassValue.withClassName("0点以上10点未満", 5)
-  private val ten2twenty     = ClassValue.withClassName("10点以上20点未満", 15)
-  private val twenty2thirty  = ClassValue.withClassName("20点以上30点未満", 25)
-  private val thirty2forty   = ClassValue.withClassName("30点以上40点未満", 35)
-  private val forty2fifty    = ClassValue.withClassName("40点以上50点未満", 45)
-  private val fifty2sixty    = ClassValue.withClassName("50点以上60点未満", 55)
-  private val sixty2seventy  = ClassValue.withClassName("60点以上70点未満", 65)
-  private val seventy2eighty = ClassValue.withClassName("70点以上80点未満", 75)
-  private val eighty2ninety  = ClassValue.withClassName("80点以上90点未満", 85)
-  private val ninety2hundred = ClassValue.withClassName("90点以上100点以下", 95)
-  val m: Map[ClassValue.WithClassName, Frequency] = Map(
+  private val zero2ten       = frequency.ClassValue.withClassName("0点以上10点未満", 5)
+  private val ten2twenty     = frequency.ClassValue.withClassName("10点以上20点未満", 15)
+  private val twenty2thirty  = frequency.ClassValue.withClassName("20点以上30点未満", 25)
+  private val thirty2forty   = frequency.ClassValue.withClassName("30点以上40点未満", 35)
+  private val forty2fifty    = frequency.ClassValue.withClassName("40点以上50点未満", 45)
+  private val fifty2sixty    = frequency.ClassValue.withClassName("50点以上60点未満", 55)
+  private val sixty2seventy  = frequency.ClassValue.withClassName("60点以上70点未満", 65)
+  private val seventy2eighty = frequency.ClassValue.withClassName("70点以上80点未満", 75)
+  private val eighty2ninety  = frequency.ClassValue.withClassName("80点以上90点未満", 85)
+  private val ninety2hundred = frequency.ClassValue.withClassName("90点以上100点以下", 95)
+  val m: Map[frequency.ClassValue.WithClassName, Frequency] = Map(
     zero2ten       -> Frequency(12),
     ten2twenty     -> Frequency(10),
     twenty2thirty  -> Frequency(19),
@@ -29,7 +30,7 @@ class FrequencyDistributionTest extends BaseFunSpec {
     ninety2hundred -> Frequency(19)
   )
 
-  val fd: FrequencyDistribution[ClassValue.WithClassName] = FrequencyDistribution.of(m)
+  val fd: FrequencyDistribution[frequency.ClassValue.WithClassName] = FrequencyDistribution.of(m)
 
   describe("FrequencyDistribution - 度数分布クラスのテスト") {
     it("getFrequency - 引数の階級の度数を取得する") {
@@ -93,14 +94,14 @@ class FrequencyDistributionTest extends BaseFunSpec {
     }
 
     it("mean - 平均") {
-      val map: Map[ClassValue.Default, Frequency] = Map(
-        ClassValue(1) -> Frequency(12),
-        ClassValue(2) -> Frequency(15),
-        ClassValue(3) -> Frequency(25),
-        ClassValue(4) -> Frequency(19),
-        ClassValue(5) -> Frequency(8)
+      val map: Map[frequency.ClassValue.Default, Frequency] = Map(
+        frequency.ClassValue(1) -> Frequency(12),
+        frequency.ClassValue(2) -> Frequency(15),
+        frequency.ClassValue(3) -> Frequency(25),
+        frequency.ClassValue(4) -> Frequency(19),
+        frequency.ClassValue(5) -> Frequency(8)
       )
-      val dist: FrequencyDistribution[ClassValue.Default] = FrequencyDistribution.of(map)
+      val dist: FrequencyDistribution[frequency.ClassValue.Default] = FrequencyDistribution.of(map)
       dist.mean shouldBe 2.949 +- 0.001
     }
   }

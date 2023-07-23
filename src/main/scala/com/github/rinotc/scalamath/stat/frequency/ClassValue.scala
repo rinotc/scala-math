@@ -1,4 +1,4 @@
-package com.github.rinotc.scalastats.frequency
+package com.github.rinotc.scalamath.stat.frequency
 
 /**
  * 階級値
