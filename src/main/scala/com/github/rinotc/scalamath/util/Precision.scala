@@ -34,7 +34,7 @@ object Precision {
    * @return
    *   `x` と `y` の間に `maxUlps` 未満の浮動小数点の数がある場合は、`true`.
    */
-  def equals(x: Double, y: Double, maxUlps: Int): Boolean = {
+  def equals(x: Double, y: Double, maxUlps: Int = 1): Boolean = {
     val xInt: Long = java.lang.Double.doubleToRawLongBits(x)
     val yInt: Long = java.lang.Double.doubleToRawLongBits(y)
 
