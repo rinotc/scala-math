@@ -16,24 +16,24 @@ class BrentSolver(
 )(protected val objectiveFunction: Double => Double)
     extends UnivariateSolver {
 
-  def solve(min: Double, max: Double, startValue: Double): Either[SolveException, Double] =
+  def doSolve(min: Double, max: Double, initial: Double): Either[SolveException, Double] =
 
-    require(min <= startValue && startValue <= max, "endpoints do not specify an interval")
+    require(min <= initial && initial <= max, "endpoints do not specify an interval")
 
-    val yInitial = computeObjectiveValue(startValue)
+    val yInitial = computeObjectiveValue(initial)
     val yMin     = computeObjectiveValue(min)
     val yMax     = computeObjectiveValue(max)
 
     // 最初の推測が正しければ、それを返す
-    if abs(yInitial) <= functionValueAccuracy then Right(startValue)
+    if abs(yInitial) <= functionValueAccuracy then Right(initial)
     // 最初の端点が十分であれば、それを返す
     else if abs(yMin) <= functionValueAccuracy then Right(min)
     //
-    else if yInitial * yMin < 0 then brent(min, startValue, yMin, yInitial)
+    else if yInitial * yMin < 0 then brent(min, initial, yMin, yInitial)
     else if abs(yMax) <= functionValueAccuracy then Right(max)
-    else if yInitial * yMax < 0 then brent(startValue, max, yInitial, yMax)
+    else if yInitial * yMax < 0 then brent(initial, max, yInitial, yMax)
     else Left(NoBracketingException())
-  end solve
+  end doSolve
 
   /**
    * 与えられた区間内で、ゼロ点を探す。
@@ -54,7 +54,7 @@ class BrentSolver(
     @tailrec
     def loop(a: Double, fa: Double, b: Double, fb: Double, c: Double, fc: Double, d: Double, e: Double): Double = {
       val (newA, newFa, newB, newFb, newC, newFc, newD, newE) = {
-        if abs(fc) < abs(fb) then (b, fb, c, fc, b, fb, b - a, b - a) else (a, fa, b, fb, c, fc, d, e)
+        if abs(fc) < abs(fb) then (b, fb, c, fc, b, fb, d, e) else (a, fa, b, fb, c, fc, d, e)
       }
 
       val tol = 2 * relativeAccuracy * abs(newB) + absoluteAccuracy
@@ -64,17 +64,21 @@ class BrentSolver(
         newB // return
       } else {
         val (nextD, nextE) = if (abs(newE) < tol || abs(newFa) <= abs(newFb)) {
-          (m, m)
+          (m, m) // Force Bisection
         } else {
           val s = newFb / newFa
-          val (p, q) = if (newA == newC) {
-            (2 * m * s, 1 - s)
+          var (p, q) = if (newA == newC) {
+            (2 * m * s, 1 - s) // // Linear interpolation.
           } else {
+            // Inverse quadratic interpolation.
             val q = newFa / newFc
             val r = newFb / newFc
             (s * (2 * m * q * (q - r) - (newB - newA) * (r - 1)), (q - 1) * (r - 1) * (s - 1))
           }
-          if p > 0 then (p / -q, -q) else (p / q, q)
+          if p > 0 then q = -q else p = -p
+
+          if p >= 1.5 * m * q - abs(tol * q) || p >= abs(0.5 * s * q) then (m, m)
+          else (p / q, newD)
         }
 
         val nextA  = newB
@@ -97,6 +101,8 @@ class BrentSolver(
 }
 
 object BrentSolver {
+
+  def apply(maxEvaluations: Int)(f: Double => Double) = new BrentSolver(maxEvaluations)(f)
 
   /**
    * デフォルトの絶対精度

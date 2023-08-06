@@ -21,6 +21,8 @@ class Incrementor(initial: Int = 0, step: Int = 1, maxCount: Int = Int.MaxValue)
     else Left("Max count exceeded.")
   end increment
 
+  def init(): Unit = count = initial
+
   def getMaximalCount: Int = maxCount
 
   def getCount: Int = count

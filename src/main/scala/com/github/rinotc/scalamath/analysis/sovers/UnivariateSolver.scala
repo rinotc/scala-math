@@ -70,6 +70,8 @@ trait UnivariateSolver {
    */
   def functionValueAccuracy: Double
 
+  protected def doSolve(min: Double, max: Double, initial: Double): Either[SolveException, Double]
+
   /**
    * 与えられた区間内でゼロの根を求め、startValueで開始します。 ソルバーは、区間が一つのゼロの根を囲むことを要求することがあります。
    * 囲むことを要求するソルバーは、エンドポイントの一方が自体が根である場合でも対処できるべきです。
@@ -78,14 +80,17 @@ trait UnivariateSolver {
    *   区間の下限。
    * @param max
    *   区間の上限。
-   * @param startValue
+   * @param initial
    *   使用する開始値。
    * @return
    *   関数がゼロとなる値。
    * @throws IllegalArgumentException
    *   もし引数がソルバーが指定した要件を満たさない場合。
    */
-  def solve(min: Double, max: Double, startValue: Double): Either[SolveException, Double]
+  def solve(min: Double, max: Double, initial: Double): Either[SolveException, Double] = {
+    incrementor.init()
+    doSolve(min, max, initial)
+  }
 
   /**
    * 与えられた区間でゼロ根を求める．ソルバは，区間が1つのゼロ根を括ることを要求することができる. 括弧付けを必要とするソルバは、端点の1つ自体がルートであるケースを扱うことができるはずである。
@@ -105,15 +110,15 @@ trait UnivariateSolver {
 
   /**
    * startValueの近くでゼロの根を求めます。
-   * @param startValue
+   * @param initial
    *   使用する開始値。
    * @return
    *   関数がゼロとなる値。
    * @throws IllegalArgumentException
    *   もし引数がソルバーが指定した要件を満たさない場合。
    */
-  def solve(startValue: Double): Either[SolveException, Double] = {
-    solve(Double.NaN, Double.NaN, startValue)
+  def solve(initial: Double): Either[SolveException, Double] = {
+    solve(Double.NaN, Double.NaN, initial)
   }
 }
 
