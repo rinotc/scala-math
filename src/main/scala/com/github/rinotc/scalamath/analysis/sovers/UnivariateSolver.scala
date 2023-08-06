@@ -3,6 +3,8 @@ package com.github.rinotc.scalamath.analysis.sovers
 import com.github.rinotc.scalamath.util.Incrementor
 import org.apache.commons.math3.optim.MaxEval
 
+import scala.util.{Failure, Success, Try}
+
 /**
  * 一変量実数のルート探索アルゴリズムのインターフェース。 実装は与えられた区間において、1つのゼロだけを探索する。
  */
@@ -10,10 +12,21 @@ trait UnivariateSolver {
 
   import UnivariateSolver._
 
+  private lazy val incrementor = new Incrementor(maxCount = maxEvaluations)
+
+  protected def computeObjectiveValue(point: Double): Double = {
+    Try {
+      incrementor.unsafeIncrement()
+      objectiveFunction(point)
+    } match
+      case Failure(exception) => throw new TooManyEvaluationsException
+      case Success(value)     => value
+  }
+
   /**
    * 目的関数
    */
-  type ObjectiveFunction = Double => Double
+  protected def objectiveFunction: Double => Double
 
   /**
    * 目的関数の最大実行回数を取得する
@@ -29,7 +42,7 @@ trait UnivariateSolver {
    * @return
    *   目的回数の評価回数
    */
-  def getEvaluationCount: Int
+  def getEvaluationCount: Int = incrementor.getCount
 
   /**
    * ソルバーの絶対精度を取得する。つまり、&epsilon; がソルバーの絶対精度で、 `v` が `solve` メソッドの一つによって 返される値である場合、関数のルートは区間 (`v` - &epsilon;, `v` +
@@ -61,22 +74,18 @@ trait UnivariateSolver {
    * 与えられた区間内でゼロの根を求め、startValueで開始します。 ソルバーは、区間が一つのゼロの根を囲むことを要求することがあります。
    * 囲むことを要求するソルバーは、エンドポイントの一方が自体が根である場合でも対処できるべきです。
    *
-   * @param maxEval
-   *   評価の最大回数。
    * @param min
    *   区間の下限。
    * @param max
    *   区間の上限。
    * @param startValue
    *   使用する開始値。
-   * @param f
-   *   解くべき関数。
    * @return
    *   関数がゼロとなる値。
    * @throws IllegalArgumentException
    *   もし引数がソルバーが指定した要件を満たさない場合。
    */
-  def solve(min: Double, max: Double, startValue: Double)(f: ObjectiveFunction): Either[String, Double]
+  def solve(min: Double, max: Double, startValue: Double): Either[SolveException, Double]
 
   /**
    * 与えられた区間でゼロ根を求める．ソルバは，区間が1つのゼロ根を括ることを要求することができる. 括弧付けを必要とするソルバは、端点の1つ自体がルートであるケースを扱うことができるはずである。
@@ -85,22 +94,17 @@ trait UnivariateSolver {
    *   区間の下限
    * @param max
    *   区間の上限
-   * @param f
-   *   解決するための関数
    * @return
    *   渡された関数がゼロになる値. 評価回数が最大値を超えた場合、[[Left]] を返す
    * @throws IllegalArgumentException
    *   ソルバーに指定された要件を満たさない引数の場合
    */
-  def solve(min: Double, max: Double)(f: ObjectiveFunction): Either[String, Double] = {
-    solve(min, max, min + 0.5 * (max - min))(f)
+  def solve(min: Double, max: Double): Either[SolveException, Double] = {
+    solve(min, max, min + 0.5 * (max - min))
   }
 
   /**
    * startValueの近くでゼロの根を求めます。
-   *
-   * @param f
-   *   解くべき関数。
    * @param startValue
    *   使用する開始値。
    * @return
@@ -108,8 +112,8 @@ trait UnivariateSolver {
    * @throws IllegalArgumentException
    *   もし引数がソルバーが指定した要件を満たさない場合。
    */
-  def solve(startValue: Double)(f: ObjectiveFunction): Either[String, Double] = {
-    solve(Double.NaN, Double.NaN, startValue)(f)
+  def solve(startValue: Double): Either[SolveException, Double] = {
+    solve(Double.NaN, Double.NaN, startValue)
   }
 }
 
@@ -118,10 +122,16 @@ object UnivariateSolver {
   /**
    * デフォルトの相対精度
    */
-  final val DefaultRelativeAccuracy = 1e-14
+  final val DefaultRelativeAccuracy: Double = 1e-14
 
   /**
    * デフォルトの関数値精度
    */
-  final val DefaultFunctionValueAccuracy = 1e-15
+  final val DefaultFunctionValueAccuracy: Double = 1e-15
+
+  sealed trait SolveException extends RuntimeException
+
+  final case class TooManyEvaluationsException() extends SolveException
+
+  final case class NoBracketingException() extends SolveException
 }
